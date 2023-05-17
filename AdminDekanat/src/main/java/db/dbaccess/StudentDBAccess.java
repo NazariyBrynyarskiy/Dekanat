@@ -1,6 +1,6 @@
-package db.studentinfo;
+package db.dbaccess;
 
-import db.abstracts.Connection;
+import db.dbenteties.StudentEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,13 +14,11 @@ public class StudentDBAccess extends Connection {
     public List<StudentEntity> select() throws SQLException {
         List<StudentEntity> list = new ArrayList<>();
 
+        int dekanatID;
         String name;
         String surname;
-        String faculty;
-        String studyingStart;
-        String group;
+        String groupName;
         String formOfEducation;
-        String trainingDirection;
         String formOfPayment;
 
         java.sql.Connection connection = DriverManager.getConnection(getCONNECTION(), "newuser", "password");
@@ -28,24 +26,14 @@ public class StudentDBAccess extends Connection {
         ResultSet resultSet = statement.executeQuery("SELECT * FROM Students");
 
         while (resultSet.next()) {
+            dekanatID = resultSet.getInt("dekanatID");
             name = resultSet.getString("name");
             surname = resultSet.getString("surname");
-            faculty = resultSet.getString("faculty");
-            studyingStart = resultSet.getString("studyingStart");
-            group = resultSet.getString("group");
+            groupName = resultSet.getString("groupName");
             formOfEducation = resultSet.getString("formOfEducation");
-            trainingDirection = resultSet.getString("trainingDirection");
             formOfPayment = resultSet.getString("formOfPayment");
 
-            list.add(new StudentEntity(name,
-                                       surname,
-                                       faculty,
-                                       studyingStart,
-                                       group,
-                                       formOfEducation,
-                                       trainingDirection,
-                                       formOfPayment
-            ));
+            list.add(new StudentEntity(dekanatID, name, surname, groupName, formOfEducation, formOfPayment));
         }
 
         connection.close();
@@ -56,11 +44,14 @@ public class StudentDBAccess extends Connection {
     }
 
     public int getStudentID(int dekanatID) throws SQLException {
-        java.sql.Connection connection = DriverManager.getConnection(getCONNECTION());
+        java.sql.Connection connection = DriverManager.getConnection(getCONNECTION(), "newuser", "password");
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT dekanatID FROM Students WHERE dekanatID = " + dekanatID);
 
-        int studentID = Integer.parseInt(resultSet.getString("dekanatID"));
+        int studentID = 0;
+        if (resultSet.next()) {
+            studentID = Integer.parseInt(resultSet.getString("dekanatID"));
+        }
 
         connection.close();
         statement.close();

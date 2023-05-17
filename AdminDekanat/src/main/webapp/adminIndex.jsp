@@ -1,6 +1,6 @@
-<%@ page import="db.studentinfo.StudentEntity" %>
+<%@ page import="db.dbenteties.StudentEntity" %>
 <%@ page import="managers.student.StudentManager" %>
-<%@ page import="db.studentgrades.GradeEntity" %>
+<%@ page import="db.dbenteties.GradeEntity" %>
 <%@ page import="managers.grades.GradesManager" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -46,9 +46,9 @@
 <hr>
 
 <form>
-    <h3>Subject<input type="text" name="subject" required></h3>
-    <h3>Grade<input type="number" name="grade" required></h3>
+    <h3>Subject name<input type="text" name="subjectName" required></h3>
     <h3>DekanatID<input type="number" name="dekanatID" required></h3>
+    <h3>Grade<input type="number" name="grade" required></h3>
 
     <button type="submit">Reserve</button>
 </form>
@@ -58,18 +58,19 @@
 
 <%
     final String URL = "http://localhost:8080/admin/index";
-    String subject;
-    int grade;
+    String subjectName;
     int dekanatID;
+    int grade;
 
-    if (request.getParameter("subject") != null &&
-            request.getParameter("grade") != null &&
-            request.getParameter("dekanatID") != null) {
-        subject = request.getParameter("subject");
-        grade = Integer.parseInt(request.getParameter("grade"));
+    if (request.getParameter("subjectName") != null &&
+            request.getParameter("dekanatID") != null &&
+            request.getParameter("grade") != null) {
+        subjectName = request.getParameter("subjectName");
         dekanatID = Integer.parseInt(request.getParameter("dekanatID"));
+        grade = Integer.parseInt(request.getParameter("grade"));
         try {
-            gradesManager.insert(subject, grade, dekanatID);
+
+            gradesManager.insert(subjectName, dekanatID, grade);
             response.sendRedirect(URL);
         } catch (SQLException e) {
             throw new RuntimeException(e);

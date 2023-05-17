@@ -1,7 +1,7 @@
 package managers.student;
 
-import db.studentinfo.StudentDBAccess;
-import db.studentinfo.StudentEntity;
+import db.dbaccess.StudentDBAccess;
+import db.dbenteties.StudentEntity;
 
 import java.sql.SQLException;
 import java.util.List;

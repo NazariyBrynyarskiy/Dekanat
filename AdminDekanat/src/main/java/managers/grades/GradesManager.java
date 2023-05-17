@@ -1,11 +1,10 @@
 package managers.grades;
 
-import db.studentgrades.GradeEntity;
-import db.studentgrades.GradesDBAccess;
+import db.dbenteties.GradeEntity;
+import db.dbaccess.GradesDBAccess;
 import managers.grades.checker.Check;
 import managers.grades.checker.checkings.PositiveGrade;
 import managers.grades.checker.checkings.StudentExisting;
-import managers.grades.checker.checkings.SubjectExisting;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,21 +28,22 @@ public class GradesManager {
         return gradeEntities;
     }
 
-    public boolean insert(String subject, int grade, int dekanatID) throws SQLException {
+    private boolean checker(int grade, int dekanatID) {
         List<Check> checks = new ArrayList<>();
         checks.add(new StudentExisting());
-        checks.add(new SubjectExisting());
         checks.add(new PositiveGrade());
 
-
         if ( !(checks.get(0).check(dekanatID) ||
-                checks.get(1).check(subject) ||
-                checks.get(2).check(grade)) ) {
+                checks.get(1).check(grade)) ) {
             return false;
         }
 
-        gradesDBAccess.insert(subject, grade, dekanatID);
-
         return true;
+    }
+
+    public void insert(String subjectName, int dekanatID, int grade) throws SQLException {
+        //if (checker(grade, dekanatID)) {
+            gradesDBAccess.insert(subjectName, dekanatID, grade);
+        //}
     }
 }

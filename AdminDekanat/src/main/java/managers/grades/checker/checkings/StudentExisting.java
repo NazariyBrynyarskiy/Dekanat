@@ -1,6 +1,6 @@
 package managers.grades.checker.checkings;
 
-import db.studentinfo.StudentDBAccess;
+import db.dbaccess.StudentDBAccess;
 import managers.grades.checker.Check;
 
 import java.sql.SQLException;

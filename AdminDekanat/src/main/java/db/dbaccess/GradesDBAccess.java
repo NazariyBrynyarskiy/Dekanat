@@ -1,6 +1,6 @@
-package db.studentgrades;
+package db.dbaccess;
 
-import db.abstracts.Connection;
+import db.dbenteties.GradeEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,12 +8,12 @@ import java.util.List;
 
 public class GradesDBAccess extends Connection {
 
-    public void insert(String subject, int grade, int dekanatID) throws SQLException {
+    public void insert(String subjectName, int dekanatID, int grade) throws SQLException {
         java.sql.Connection connection = DriverManager.getConnection(getCONNECTION(), "newuser", "password");
         Statement statement = connection.createStatement();
 
-        statement.execute("INSERT INTO Grades (subject, grade, dekanatID) " +
-                "VALUES ('" + subject + "', " + grade + ", " + dekanatID + ")");
+        statement.execute("INSERT INTO Grades (subjectName, dekanatID, grade) " +
+                "VALUES ('" + subjectName + "', " + dekanatID + ", " + grade + ")");
 
         connection.close();
         statement.close();
@@ -23,7 +23,7 @@ public class GradesDBAccess extends Connection {
     public List<GradeEntity> select() throws SQLException {
         List<GradeEntity> list = new ArrayList<>();
 
-        String subject;
+        String subjectName;
         int grade;
         int dekanatID;
 
@@ -33,11 +33,11 @@ public class GradesDBAccess extends Connection {
 
 
         while (resultSet.next()) {
-            subject = resultSet.getString("subject");
-            grade = resultSet.getInt("grade");
+            subjectName = resultSet.getString("subjectName");
             dekanatID = resultSet.getInt("dekanatID");
+            grade = resultSet.getInt("grade");
 
-            list.add(new GradeEntity(subject, grade, dekanatID));
+            list.add(new GradeEntity(subjectName, dekanatID, grade));
         }
 
         connection.close();
