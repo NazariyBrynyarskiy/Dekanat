@@ -8,6 +8,6 @@
 <h1><%= "Hello User Dekanat!" %>
 </h1>
 <br/>
-<a href="hello-servlet">Hello Servlet</a>
+<h1><a href="http://localhost:8080">Log out</a></h1>
 </body>
 </html>

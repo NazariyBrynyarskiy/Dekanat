@@ -9,7 +9,6 @@
         <module name="AdminDekanat" />
         <module name="Account" />
         <module name="UserDekanat" />
-        <module name="Frontend" />
       </profile>
     </annotationProcessing>
   </component>

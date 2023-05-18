@@ -13,7 +13,6 @@
     <modules>
         <module>AdminDekanat</module>
         <module>UserDekanat</module>
-        <module>Account</module>
         <module>Frontend</module>
     </modules>
 

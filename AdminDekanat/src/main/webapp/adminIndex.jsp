@@ -78,6 +78,7 @@
     }
 
 %>
+<h1><a href="http://localhost:8080">Log out</a></h1>
 
 </body>
 </html>
