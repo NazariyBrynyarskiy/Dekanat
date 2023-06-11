@@ -1,8 +1,13 @@
-<%@ page import="db.dbenteties.StudentEntity" %>
-<%@ page import="managers.student.StudentManager" %>
+<%@ page import="security.AccessToken" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="java.text.ParseException" %>
+<%@ page import="com.nimbusds.jose.JOSEException" %>
 <%@ page import="db.dbenteties.GradeEntity" %>
-<%@ page import="managers.grades.GradesManager" %>
+<%@ page import="db.dbenteties.StudentEntity" %>
+<%@ page import="managers.StudentManager" %>
+<%@ page import="managers.GradesManager" %>
 <%@ page import="java.sql.SQLException" %>
+<%@ page import="servlets.AccountController" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -10,6 +15,29 @@
     <title>JSP - Hello World</title>
 </head>
 <body>
+<br/>
+<h2>Cookies</h2>
+<%
+    try {
+        AccountController accountController = new AccountController();
+        accountController.doFilter(request, response, "admin");
+    } catch (IOException | ServletException e) {
+        throw new RuntimeException(e);
+    }
+
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if (!cookie.getName().equals("JSESSIONID")) {
+%>
+<h2><%= cookie.getName() %></h2>
+<h3><%= cookie.getValue() %></h3>
+<%
+            }
+        }
+    }
+%>
+<br/>
 <%
     StudentManager studentManager = null;
     GradesManager gradesManager = null;
@@ -20,6 +48,7 @@
         throw new RuntimeException(e);
     }
 %>
+<hr>
 <h1><%= "List of students:" %></h1>
 <%
     for (StudentEntity studentEntity : studentManager.getStudentEntities()) {
@@ -45,39 +74,14 @@
 <br>
 <hr>
 
-<form>
+<form method="post" action="/grades-controller">
     <h3>Subject name<input type="text" name="subjectName" required></h3>
     <h3>DekanatID<input type="number" name="dekanatID" required></h3>
     <h3>Grade<input type="number" name="grade" required></h3>
-
-    <button type="submit">Reserve</button>
+    <input type="submit" value="Submit">
 </form>
 
-<h1>--</h1>
-<%= request.getParameter("grade") %>
 
-<%
-    final String URL = "http://localhost:8080/admin/index";
-    String subjectName;
-    int dekanatID;
-    int grade;
-
-    if (request.getParameter("subjectName") != null &&
-            request.getParameter("dekanatID") != null &&
-            request.getParameter("grade") != null) {
-        subjectName = request.getParameter("subjectName");
-        dekanatID = Integer.parseInt(request.getParameter("dekanatID"));
-        grade = Integer.parseInt(request.getParameter("grade"));
-        try {
-
-            gradesManager.insert(subjectName, dekanatID, grade);
-            response.sendRedirect(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-%>
 <h1><a href="http://localhost:8080">Log out</a></h1>
 
 </body>

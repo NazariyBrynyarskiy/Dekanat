@@ -1,10 +1,10 @@
-package managers.grades;
+package managers;
 
 import db.dbenteties.GradeEntity;
 import db.dbaccess.GradesDBAccess;
-import managers.grades.checker.Check;
-import managers.grades.checker.checkings.PositiveGrade;
-import managers.grades.checker.checkings.StudentExisting;
+import managers.checker.Check;
+import managers.checker.checkings.PositiveGrade;
+import managers.checker.checkings.StudentExisting;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ public class GradesManager {
         checks.add(new StudentExisting());
         checks.add(new PositiveGrade());
 
-        if ( !(checks.get(0).check(dekanatID) ||
-                checks.get(1).check(grade)) ) {
+        if ( !checks.get(0).check(dekanatID) ||
+                !checks.get(1).check(grade) ) {
             return false;
         }
 
@@ -42,8 +42,8 @@ public class GradesManager {
     }
 
     public void insert(String subjectName, int dekanatID, int grade) throws SQLException {
-        //if (checker(grade, dekanatID)) {
+        if (checker(grade, dekanatID)) {
             gradesDBAccess.insert(subjectName, dekanatID, grade);
-        //}
+        }
     }
 }

@@ -21,14 +21,4 @@ public record StudentEntity(int dekanatID,
         this.formOfPayment = formOfPayment;
     }
 
-    @Override
-    public String toString() {
-        return "{ Dekanat id: " + dekanatID +
-                ", Name: " + name +
-                ", Surname: "+ surname +
-                ", Id group: " + groupName +
-                ", Form of education: " + formOfEducation +
-                ", Form of payment: " + formOfPayment +
-                " }";
-    }
 }

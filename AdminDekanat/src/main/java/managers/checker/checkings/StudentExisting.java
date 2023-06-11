@@ -1,13 +1,13 @@
-package managers.grades.checker.checkings;
+package managers.checker.checkings;
 
 import db.dbaccess.StudentDBAccess;
-import managers.grades.checker.Check;
+import managers.checker.Check;
 
 import java.sql.SQLException;
 
-public class StudentExisting implements Check<Integer> {
+public class StudentExisting implements Check {
     @Override
-    public boolean check(Integer dekanatID) {
+    public boolean check(int dekanatID) {
         StudentDBAccess studentDBAccess = new StudentDBAccess();
         int dbStudentID = 0;
         try {

@@ -13,13 +13,13 @@
     <modules>
         <module>AdminDekanat</module>
         <module>UserDekanat</module>
-        <module>Frontend</module>
+        <module>Security</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.source>16</maven.compiler.source>
         <junit.version>5.9.1</junit.version>
     </properties>
 

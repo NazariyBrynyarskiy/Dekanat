@@ -2,14 +2,16 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
+      <profile name="Maven default annotation processors profile">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="AdminDekanat" />
         <module name="Account" />
         <module name="UserDekanat" />
+        <module name="Security" />
       </profile>
+      <profile name="Disabled" />
     </annotationProcessing>
   </component>
 </project>

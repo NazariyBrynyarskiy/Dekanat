@@ -1,4 +1,4 @@
-package managers.lecturer;
+package managers;
 
 public class LecturerManager {
 

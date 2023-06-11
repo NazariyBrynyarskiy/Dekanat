@@ -8,11 +8,4 @@ public record GradeEntity(String subjectName, int dekanatID, int grade) {
         this.grade = grade;
     }
 
-    @Override
-    public String toString() {
-        return "{Subject: " + subjectName +
-                ", Grade: " + grade +
-                ", dekanatID: " + dekanatID +
-                "}";
-    }
 }

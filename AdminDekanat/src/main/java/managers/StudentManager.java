@@ -1,4 +1,4 @@
-package managers.student;
+package managers;
 
 import db.dbaccess.StudentDBAccess;
 import db.dbenteties.StudentEntity;
