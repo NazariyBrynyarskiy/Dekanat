@@ -1,4 +1,3 @@
-<%@ page import="security.AccessToken" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.text.ParseException" %>
 <%@ page import="com.nimbusds.jose.JOSEException" %>
@@ -12,32 +11,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+    <title>Lecturer</title>
 </head>
 <body>
 <br/>
-<h2>Cookies</h2>
 <%
     try {
         AccountController accountController = new AccountController();
         accountController.doFilter(request, response, "admin");
-    } catch (IOException | ServletException e) {
+    } catch (IOException | JOSEException | ParseException | ServletException e) {
         throw new RuntimeException(e);
     }
+%>
 
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-        for (Cookie cookie : cookies) {
-            if (!cookie.getName().equals("JSESSIONID")) {
-%>
-<h2><%= cookie.getName() %></h2>
-<h3><%= cookie.getValue() %></h3>
-<%
-            }
-        }
-    }
-%>
-<br/>
 <%
     StudentManager studentManager = null;
     GradesManager gradesManager = null;
@@ -53,7 +40,7 @@
 <%
     for (StudentEntity studentEntity : studentManager.getStudentEntities()) {
 %>
-<p><h3><%= studentEntity %></h3></p>
+<p><h3><%= studentEntity %></h3>
 <br>
 <%
     }
@@ -64,7 +51,7 @@
 <%
     for (GradeEntity gradeEntity : gradesManager.getGradeEntities()) {
 %>
-<p><h3><%= gradeEntity %></h3></p>
+<p><h3><%= gradeEntity %></h3>
 <br>
 <%
     }

@@ -4,8 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
-import security.AccessToken;
-import security.Redirecter;
+import security.AuthService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -14,7 +13,17 @@ import java.text.ParseException;
 
 @WebServlet(name = "servlets.AccountController", value = "/account")
 public class AccountController extends HttpServlet {
+
+    public AccountController() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final String loginPage = "http://localhost:8080";
+
 
     public void doFilter(HttpServletRequest request, HttpServletResponse response, String role)
             throws IOException, ServletException, ParseException, JOSEException {
@@ -34,8 +43,8 @@ public class AccountController extends HttpServlet {
             return;
         }
 
-        AccessToken accessToken = new AccessToken();
-        if (!accessToken.authentication(authToken) || !accessToken.authorization(authToken, role)) {
+        AuthService token = new AuthService("", "");
+        if (!token.authentication(response, authToken) || !token.authorization(response, authToken, role)) {
             response.sendRedirect(loginPage);
         }
     }
@@ -47,14 +56,20 @@ public class AccountController extends HttpServlet {
 
             String email = request.getParameter("email");
             String password = request.getParameter("password");
-            Redirecter redirecter = new Redirecter(email, password);
+            AuthService redirecter = new AuthService(email, password);
 
 
             try {
-                redirecter.url();
-            } catch (SQLException e) {
+                redirecter.getUrl();
+                if (redirecter.getRole() == null) {
+                    RequestDispatcher dispatcher =
+                            getServletContext().getRequestDispatcher("/error");
+                    dispatcher.forward(request, response);
+                }
+            } catch (SQLException | ServletException e) {
                 throw new RuntimeException(e);
             }
+
             Cookie accessToken = new Cookie("token", redirecter.getAccessToken().trim());
             Cookie role = new Cookie("role", redirecter.getRole().trim());
             accessToken.setPath("/");
@@ -65,7 +80,7 @@ public class AccountController extends HttpServlet {
             response.addCookie(role);
 
             try {
-                response.sendRedirect(redirecter.url());
+                response.sendRedirect(redirecter.getUrl());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

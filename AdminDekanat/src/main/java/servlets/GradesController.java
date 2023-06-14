@@ -1,5 +1,7 @@
 package servlets;
 
+import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +10,7 @@ import managers.GradesManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 
 
 @WebServlet(name = "GradesController", value = "/grades-controller")
