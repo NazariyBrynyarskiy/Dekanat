@@ -5,6 +5,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import dao.Role;
 import security.Client;
 
 import java.sql.DriverManager;
@@ -61,6 +62,7 @@ public abstract class Token {
         JWSVerifier verifier = new MACVerifier(accessToken.getSecretKey().getBytes());
         String decodedEmail = null;
         String decodedPassword = null;
+        String clientRole = null;
 
         if (signedJWT.verify(verifier)) {
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
@@ -83,12 +85,14 @@ public abstract class Token {
                 while (resultSet.next()) {
                     decodedEmail = resultSet.getString("email");
                     decodedPassword = resultSet.getString("password");
+                    Role role = new Role();
+                    clientRole = role.getRole(decodedEmail, decodedPassword);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return new Client(decodedEmail, decodedPassword);
+        return new Client(decodedEmail, decodedPassword, clientRole);
     }
 
 }

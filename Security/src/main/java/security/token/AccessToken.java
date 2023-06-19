@@ -51,33 +51,31 @@ public class AccessToken extends Token {
     }
 
 
-//    public boolean createAccessToken(HttpServletResponse response, String role) throws ParseException, JOSEException {
-//        if (accessToken != null && !isValidToken(accessToken, secretKey)) {
-//            RefreshToken refreshToken = new RefreshToken();
-//            if (refreshToken.isValidToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey())) {
-//                Role clientRole = new Role();
-//                try {
-//                    String email = decodeToken(refreshToken.getRefreshToken()).email();
-//                    String password = decodeToken(refreshToken.getRefreshToken()).password();
-//                    createAccessToken(email, password, clientRole.getRole(email, password));
-//
-//                    Cookie cookieAccessToken = new Cookie("token", getAccessToken());
-//                    Cookie cookieRole = new Cookie("role", role);
-//                    cookieAccessToken.setPath("/");
-//                    cookieAccessToken.setMaxAge(120);
-//                    cookieRole.setPath("/");
-//                    cookieRole.setMaxAge(120);
-//                    response.addCookie(cookieAccessToken);
-//                    response.addCookie(cookieRole);
-//                } catch (SQLException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            } else {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
+    public boolean createAccessToken(HttpServletResponse response) throws ParseException, JOSEException {
+        AccessToken accessToken = new AccessToken();
+        Token decodeAccessToken = new AccessToken();
+        if (accessToken.getAccessToken() != null &&
+                !accessToken.isValidToken(accessToken.getAccessToken(), accessToken.getSecretKey())) {
+            RefreshToken refreshToken = new RefreshToken();
+            if (refreshToken.isValidToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey())) {
+                String email = decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).email();
+                String password = decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).password();
+                String role = decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).role();
+                accessToken.createAccessToken(email, password, role);
+                Cookie cookieAccessToken = new Cookie("token", getAccessToken());
+                Cookie cookieRole = new Cookie("role", role);
+                cookieAccessToken.setPath("/");
+                cookieAccessToken.setMaxAge(120);
+                cookieRole.setPath("/");
+                cookieRole.setMaxAge(120);
+                response.addCookie(cookieAccessToken);
+                response.addCookie(cookieRole);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     public String getAccessToken() {

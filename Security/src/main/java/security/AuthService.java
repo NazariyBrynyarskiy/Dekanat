@@ -1,12 +1,7 @@
 package security;
 
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import dao.Role;
 import com.nimbusds.jose.JOSEException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import security.token.AccessToken;
 import security.token.RefreshToken;
@@ -55,54 +50,20 @@ public class AuthService {
 
     public boolean authorization(HttpServletResponse response, String token, String role) throws ParseException, JOSEException {
         AccessToken accessToken = new AccessToken();
-        Token decodeAccessToken = new AccessToken();
-        if (accessToken.getAccessToken() != null &&
-                !accessToken.isValidToken(accessToken.getAccessToken(), accessToken.getSecretKey())) {
-            RefreshToken refreshToken = new RefreshToken();
-            if (refreshToken.isValidToken(refreshToken.getRefreshToken(), accessToken.getSecretKey())) {
-                Role clientRole = new Role();
-                try {
-                    accessToken.createAccessToken(decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).email(),
-                            decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).password(),
-                            clientRole.getRole(email, password));
-                    Cookie cookieAccessToken = new Cookie("token", getAccessToken());
-                    Cookie cookieRole = new Cookie("role", getRole());
-                    cookieAccessToken.setPath("/");
-                    cookieAccessToken.setMaxAge(120);
-                    cookieRole.setPath("/");
-                    cookieRole.setMaxAge(120);
-                    response.addCookie(cookieAccessToken);
-                    response.addCookie(cookieRole);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                return false;
-            }
+        if (!accessToken.createAccessToken(response)) {
+            return false;
         }
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        JWSVerifier verifier = new MACVerifier(accessToken.getSecretKey().getBytes());
-        String decodedEmail = null;
-        String decodedPassword = null;
-        String decodedRole = null;
 
-        if (signedJWT.verify(verifier)) {
-            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-            decodedEmail = (String) claimsSet.getClaim("email");
-            decodedPassword = (String) claimsSet.getClaim("password");
-            decodedRole = (String) claimsSet.getClaim("role");
-        }
+        String decodedEmail = accessToken.decodeToken(token).email();
+        String decodedPassword = accessToken.decodeToken(token).password();
+        String decodedRole = accessToken.decodeToken(token).role();
 
         if (!Objects.equals(role, decodedRole)) {
             return false;
         }
 
-        if (role.equals("user")) {
-            role = "Students";
-        }
-        else if (role.equals("admin")) {
-            role = "Lecturers";
-        }
+        if (role.equals("user")) { role = "Students"; }
+        else if (role.equals("admin")) { role = "Lecturers"; }
 
         try (java.sql.Connection connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
@@ -119,39 +80,16 @@ public class AuthService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
         return false;
     }
 
 
     public boolean authentication(HttpServletResponse response, String token) throws ParseException, JOSEException {
         AccessToken accessToken = new AccessToken();
-        Token decodeAccessToken = new AccessToken();
-        if (accessToken.getAccessToken() != null &&
-                !accessToken.isValidToken(accessToken.getAccessToken(), accessToken.getSecretKey())) {
-            RefreshToken refreshToken = new RefreshToken();
-            if (refreshToken.isValidToken(refreshToken.getRefreshToken(), accessToken.getSecretKey())) {
-                Role clientRole = new Role();
-                try {
-                    accessToken.createAccessToken(decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).email(),
-                            decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).password(),
-                            clientRole.getRole(email, password));
-                    Cookie cookieAccessToken = new Cookie("token", getAccessToken());
-                    Cookie cookieRole = new Cookie("role", getRole());
-                    cookieAccessToken.setPath("/");
-                    cookieAccessToken.setMaxAge(120);
-                    cookieRole.setPath("/");
-                    cookieRole.setMaxAge(120);
-                    response.addCookie(cookieAccessToken);
-                    response.addCookie(cookieRole);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                return false;
-            }
+        if (!accessToken.createAccessToken(response)) {
+            return false;
         }
-        return decodeAccessToken.decodeToken(token) != null;
+        return accessToken.decodeToken(token) != null;
     }
 
 

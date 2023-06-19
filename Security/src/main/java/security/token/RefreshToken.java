@@ -173,5 +173,9 @@ public class RefreshToken extends Token {
 //
 //    }
 
+    public static void main(String[] args) throws ParseException, JOSEException {
+        Token token = new AccessToken();
+        System.out.println(token.decodeToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIUzI1NiIsInBhc3N3b3JkIjoiMTIzIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNjg3MTY2Nzc2LCJlbWFpbCI6Im9sa2FAZ21haWwuY29tIn0.5MbRTT1FmKG8gt-CWzFgLW6ZAWM2koMAEgjxGmfFxDQ"));
+    }
 
 }

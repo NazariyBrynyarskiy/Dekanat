@@ -8,16 +8,19 @@ import java.util.List;
 
 public class GradesDBAccess extends Connection {
 
-    public void insert(String subjectName, int dekanatID, int grade) throws SQLException {
-        java.sql.Connection connection = DriverManager.getConnection(getCONNECTION(), "newuser", "password");
-        Statement statement = connection.createStatement();
+    public void insert(String subjectName, int dekanatID, int grade) {
+        try (java.sql.Connection connection = DriverManager.getConnection(
+                getCONNECTION(), "newuser", "password");
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "INSERT INTO Grades (subjectName, dekanatID, grade) VALUES (?, ?, ?)")) {
+            preparedStatement.setString(1, subjectName);
+            preparedStatement.setInt(2, dekanatID);
+            preparedStatement.setInt(3, grade);
 
-        statement.execute("INSERT INTO Grades (subjectName, dekanatID, grade) " +
-                "VALUES ('" + subjectName + "', " + dekanatID + ", " + grade + ")");
-
-        connection.close();
-        statement.close();
-
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<GradeEntity> select() throws SQLException {

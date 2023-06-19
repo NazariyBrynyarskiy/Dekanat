@@ -7,6 +7,7 @@
 <%@ page import="lecturermanagers.GradesManager" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="servlets.AccountController" %>
+<%@ page import="studentservlets.CookiesController" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -23,7 +24,9 @@
     } catch (IOException | JOSEException | ParseException | ServletException e) {
         throw new RuntimeException(e);
     }
+    CookiesController cookiesController = new CookiesController();
 %>
+<%= cookiesController.getToken(request) %>
 
 <%
     StudentManager studentManager = null;

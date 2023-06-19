@@ -40,7 +40,9 @@
                     <h3><%= grade.subjectName() + ", " + grade.grade()%></h3>
         <%      }
             }
+            CookiesController cookiesController = new CookiesController();
         %>
+        <%= cookiesController.getToken(request) %>
     </main>
 </div>
 <br/>
