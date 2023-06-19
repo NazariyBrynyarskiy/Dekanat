@@ -1,4 +1,4 @@
-package db.dbenteties;
+package lecturerdb.dbenteties;
 
 public record StudentEntity(int dekanatID,
                             String name,

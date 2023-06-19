@@ -1,6 +1,6 @@
-package db.dbaccess;
+package lecturerdb.dbaccess;
 
-import db.dbenteties.StudentEntity;
+import lecturerdb.dbenteties.StudentEntity;
 
 import java.sql.*;
 import java.util.ArrayList;

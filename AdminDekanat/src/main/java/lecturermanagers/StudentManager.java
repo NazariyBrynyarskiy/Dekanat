@@ -1,7 +1,7 @@
-package managers;
+package lecturermanagers;
 
-import db.dbaccess.StudentDBAccess;
-import db.dbenteties.StudentEntity;
+import lecturerdb.dbaccess.StudentDBAccess;
+import lecturerdb.dbenteties.StudentEntity;
 
 import java.sql.SQLException;
 import java.util.List;

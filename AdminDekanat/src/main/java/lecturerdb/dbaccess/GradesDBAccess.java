@@ -1,11 +1,8 @@
-package db.dbaccess;
+package lecturerdb.dbaccess;
 
-import db.dbenteties.GradeEntity;
+import lecturerdb.dbenteties.GradeEntity;
 
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 

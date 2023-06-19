@@ -1,4 +1,4 @@
-package db.dbaccess;
+package lecturerdb.dbaccess;
 
 abstract public class Connection {
     private final String CONNECTION;

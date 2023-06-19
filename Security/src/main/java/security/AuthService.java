@@ -8,6 +8,9 @@ import dao.Role;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import security.token.AccessToken;
+import security.token.RefreshToken;
+import security.token.Token;
 
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -52,13 +55,16 @@ public class AuthService {
 
     public boolean authorization(HttpServletResponse response, String token, String role) throws ParseException, JOSEException {
         AccessToken accessToken = new AccessToken();
+        Token decodeAccessToken = new AccessToken();
         if (accessToken.getAccessToken() != null &&
                 !accessToken.isValidToken(accessToken.getAccessToken(), accessToken.getSecretKey())) {
             RefreshToken refreshToken = new RefreshToken();
             if (refreshToken.isValidToken(refreshToken.getRefreshToken(), accessToken.getSecretKey())) {
                 Role clientRole = new Role();
                 try {
-                    accessToken.createAccessToken(email, password, clientRole.getRole(email, password));
+                    accessToken.createAccessToken(decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).email(),
+                            decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).password(),
+                            clientRole.getRole(email, password));
                     Cookie cookieAccessToken = new Cookie("token", getAccessToken());
                     Cookie cookieRole = new Cookie("role", getRole());
                     cookieAccessToken.setPath("/");
@@ -120,13 +126,16 @@ public class AuthService {
 
     public boolean authentication(HttpServletResponse response, String token) throws ParseException, JOSEException {
         AccessToken accessToken = new AccessToken();
+        Token decodeAccessToken = new AccessToken();
         if (accessToken.getAccessToken() != null &&
                 !accessToken.isValidToken(accessToken.getAccessToken(), accessToken.getSecretKey())) {
             RefreshToken refreshToken = new RefreshToken();
             if (refreshToken.isValidToken(refreshToken.getRefreshToken(), accessToken.getSecretKey())) {
                 Role clientRole = new Role();
                 try {
-                    accessToken.createAccessToken(email, password, clientRole.getRole(email, password));
+                    accessToken.createAccessToken(decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).email(),
+                            decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).password(),
+                            clientRole.getRole(email, password));
                     Cookie cookieAccessToken = new Cookie("token", getAccessToken());
                     Cookie cookieRole = new Cookie("role", getRole());
                     cookieAccessToken.setPath("/");
@@ -142,38 +151,30 @@ public class AuthService {
                 return false;
             }
         }
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        JWSVerifier verifier = new MACVerifier(accessToken.getSecretKey().getBytes());
-        String decodedEmail = null;
-        String decodedPassword = null;
+        return decodeAccessToken.decodeToken(token) != null;
+    }
 
-        if (signedJWT.verify(verifier)) {
-            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-            decodedEmail = (String) claimsSet.getClaim("email");
-            decodedPassword = (String) claimsSet.getClaim("password");
-        }
 
+    public int getDekanatID(String token) throws ParseException, JOSEException {
+        Token accessToken = new AccessToken();
+        Client client = accessToken.decodeToken(token);
+        int dekanatID = 0;
         try (java.sql.Connection connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT email, `password` FROM Students WHERE email = ? AND `password` = ? " +
-                             " union all" +
-                             " SELECT email, `password` FROM Lecturers WHERE email = ? AND `password` = ?")) {
-            preparedStatement.setString(1, decodedEmail);
-            preparedStatement.setString(2, decodedPassword);
-            preparedStatement.setString(3, decodedEmail);
-            preparedStatement.setString(4, decodedPassword);
+                     "SELECT dekanatID FROM Students WHERE email = ? AND `password` = ?")) {
+            preparedStatement.setString(1, client.email());
+            preparedStatement.setString(2, client.password());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return true;
+                while (resultSet.next()) {
+                    dekanatID = resultSet.getInt("dekanatID");
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        return false;
+        return dekanatID;
     }
 
 
@@ -185,5 +186,6 @@ public class AuthService {
     public String getRole() {
         return role;
     }
+
 
 }

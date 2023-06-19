@@ -1,4 +1,4 @@
-package managers.checker;
+package lecturermanagers.checker;
 
 @FunctionalInterface
 public interface Check {

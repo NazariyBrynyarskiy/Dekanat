@@ -1,7 +1,7 @@
-package managers.checker.checkings;
+package lecturermanagers.checker.checkings;
 
-import db.dbaccess.StudentDBAccess;
-import managers.checker.Check;
+import lecturerdb.dbaccess.StudentDBAccess;
+import lecturermanagers.checker.Check;
 
 import java.sql.SQLException;
 

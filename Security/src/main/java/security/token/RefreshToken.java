@@ -1,11 +1,13 @@
-package security;
+package security.token;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import security.AuthService;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.util.Calendar;
 
 
@@ -15,13 +17,13 @@ public class RefreshToken extends Token {
     private final String secretKey;
 
 
-    protected RefreshToken() {
+    public RefreshToken() {
         refreshToken = null;
         secretKey = initializeKey("Refresh");
     }
 
 
-    protected void createRefreshToken(String email, String password, String role) throws JOSEException {
+    public void createRefreshToken(String email, String password, String role) throws JOSEException {
         String subject = "HS256";
 
         JWSSigner signer = new MACSigner(secretKey.getBytes());
@@ -47,7 +49,7 @@ public class RefreshToken extends Token {
     }
 
 
-    protected void updateRefreshToken(String email, String token) {
+    private void updateRefreshToken(String email, String token) {
         try (java.sql.Connection connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/Tokens", "newuser", "password");
              PreparedStatement preparedStatement = connection.prepareStatement(
@@ -119,55 +121,57 @@ public class RefreshToken extends Token {
     }
 
 
-    protected String getRefreshToken() {
+    public String getRefreshToken() {
         return refreshToken;
     }
 
+    public String getSecretKey() { return secretKey; }
 
-    public static void main(String[] args) throws SQLException, JOSEException {
-        RefreshToken refreshToken = new RefreshToken();
-        System.out.println(refreshToken.isValidToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIUzI1NiIsInBhc3N3b3JkIjoiUXViSWo4S2QxIiwicm9sZSI6InVzZXIiLCJleHAiOjE2ODY3NTczMDcsImVtYWlsIjoiYm9iYUBnbWFpbC5jb20ifQ.350nt_zq3MdIu_pBfmAGRIfcN26y_uFCxu7N32_-nug", refreshToken.secretKey));
-//        refreshToken1.createRefreshToken("boba@gmail.com", "QubIj8Kd1", "user");
-//        List<TokenRefresh> list = new ArrayList<>();
-//        try (java.sql.Connection connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
-//             PreparedStatement preparedStatement = connection.prepareStatement("SELECT dekanatID FROM Students")) {
+    //    public static void main(String[] args) throws SQLException, JOSEException {
+//        RefreshToken refreshToken = new RefreshToken();
+//        System.out.println(refreshToken.isValidToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIUzI1NiIsInBhc3N3b3JkIjoiUXViSWo4S2QxIiwicm9sZSI6InVzZXIiLCJleHAiOjE2ODY3NTczMDcsImVtYWlsIjoiYm9iYUBnbWFpbC5jb20ifQ.350nt_zq3MdIu_pBfmAGRIfcN26y_uFCxu7N32_-nug", refreshToken.secretKey));
+////        refreshToken1.createRefreshToken("boba@gmail.com", "QubIj8Kd1", "user");
+////        List<TokenRefresh> list = new ArrayList<>();
+////        try (java.sql.Connection connection = DriverManager.getConnection(
+////                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+////             PreparedStatement preparedStatement = connection.prepareStatement("SELECT dekanatID FROM Students")) {
+////
+////            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+////                while (resultSet.next()) {
+////                    list.add(new TokenRefresh(resultSet.getInt("dekanatID"), "user"));
+////                }
+////            }
+////        } catch (SQLException e) {
+////            throw new RuntimeException(e);
+////        }
+////
+////        try (java.sql.Connection connection = DriverManager.getConnection(
+////                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+////             PreparedStatement preparedStatement = connection.prepareStatement(
+////                     "SELECT idLecturer FROM Lecturers")) {
+////
+////            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+////                while (resultSet.next()) {
+////                    list.add(new TokenRefresh(resultSet.getInt("idLecturer"), "admin"));
+////                }
+////            }
+////        } catch (SQLException e) {
+////            throw new RuntimeException(e);
+////        }
+////
+////        java.sql.Connection connection = DriverManager.getConnection(
+////                "jdbc:mysql://localhost:3306/Tokens", "newuser", "password");
+////        Statement statement = connection.createStatement();
+////
+////        for (TokenRefresh tokenn : list) {
+////            statement.execute("INSERT INTO RefreshTokens (clientID, role) " +
+////                    "VALUES (" + tokenn.id + ", '" + tokenn.role + "')");
+////        }
+////
+////        connection.close();
+////        statement.close();
 //
-//            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-//                while (resultSet.next()) {
-//                    list.add(new TokenRefresh(resultSet.getInt("dekanatID"), "user"));
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        try (java.sql.Connection connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
-//             PreparedStatement preparedStatement = connection.prepareStatement(
-//                     "SELECT idLecturer FROM Lecturers")) {
-//
-//            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-//                while (resultSet.next()) {
-//                    list.add(new TokenRefresh(resultSet.getInt("idLecturer"), "admin"));
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        java.sql.Connection connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/Tokens", "newuser", "password");
-//        Statement statement = connection.createStatement();
-//
-//        for (TokenRefresh tokenn : list) {
-//            statement.execute("INSERT INTO RefreshTokens (clientID, role) " +
-//                    "VALUES (" + tokenn.id + ", '" + tokenn.role + "')");
-//        }
-//
-//        connection.close();
-//        statement.close();
+//    }
 
-    }
 
 }

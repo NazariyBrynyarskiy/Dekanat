@@ -1,10 +1,10 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.text.ParseException" %>
 <%@ page import="com.nimbusds.jose.JOSEException" %>
-<%@ page import="db.dbenteties.GradeEntity" %>
-<%@ page import="db.dbenteties.StudentEntity" %>
-<%@ page import="managers.StudentManager" %>
-<%@ page import="managers.GradesManager" %>
+<%@ page import="lecturerdb.dbenteties.GradeEntity" %>
+<%@ page import="lecturerdb.dbenteties.StudentEntity" %>
+<%@ page import="lecturermanagers.StudentManager" %>
+<%@ page import="lecturermanagers.GradesManager" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="servlets.AccountController" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>

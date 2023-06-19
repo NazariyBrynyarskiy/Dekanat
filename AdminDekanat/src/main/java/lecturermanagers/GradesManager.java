@@ -1,10 +1,10 @@
-package managers;
+package lecturermanagers;
 
-import db.dbenteties.GradeEntity;
-import db.dbaccess.GradesDBAccess;
-import managers.checker.Check;
-import managers.checker.checkings.PositiveGrade;
-import managers.checker.checkings.StudentExisting;
+import lecturerdb.dbenteties.GradeEntity;
+import lecturerdb.dbaccess.GradesDBAccess;
+import lecturermanagers.checker.Check;
+import lecturermanagers.checker.checkings.PositiveGrade;
+import lecturermanagers.checker.checkings.StudentExisting;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

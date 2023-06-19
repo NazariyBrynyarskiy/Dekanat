@@ -1,6 +1,6 @@
-package managers.checker.checkings;
+package lecturermanagers.checker.checkings;
 
-import managers.checker.Check;
+import lecturermanagers.checker.Check;
 
 public class PositiveGrade implements Check {
 
