@@ -11,4 +11,13 @@
         <servlet-name>Index</servlet-name>
         <url-pattern>/index</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Grades</servlet-name>
+        <jsp-file>/grades.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Grades</servlet-name>
+        <url-pattern>/grades</url-pattern>
+    </servlet-mapping>
 </web-app>

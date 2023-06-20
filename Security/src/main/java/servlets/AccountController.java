@@ -5,6 +5,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import security.AuthService;
+import security.token.Token;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,26 +26,26 @@ public class AccountController extends HttpServlet {
     private final String loginPage = "http://localhost:8080";
 
 
-    public void doFilter(HttpServletRequest request, HttpServletResponse response, String role)
+    public void doFilter(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException, ParseException, JOSEException {
 
-        String authToken = null;
+        int cookieClientID = 0;
+        String cookieRole = null;
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")) {
-                    authToken = cookie.getValue();
+                if (cookie.getName().equals("clientID")) {
+                    cookieClientID = Integer.parseInt(cookie.getValue());
+                }
+                if (cookie.getName().equals("role")) {
+                    cookieRole = cookie.getValue();
                 }
             }
         }
 
-        if (authToken == null) {
-            response.sendRedirect(loginPage);
-            return;
-        }
-
-        AuthService token = new AuthService("", "");
-        if (!token.authentication(response, authToken) || !token.authorization(response, authToken, role)) {
+        AuthService.authorization(request, response, cookieClientID, cookieRole);
+        if (!AuthService.authorization(request, response, cookieClientID, cookieRole)) {
             response.sendRedirect(loginPage);
         }
     }
@@ -56,8 +57,9 @@ public class AccountController extends HttpServlet {
 
             String email = request.getParameter("email");
             String password = request.getParameter("password");
-            AuthService redirecter = new AuthService(email, password);
+            int clientID = Token.getClientID(email);
 
+            AuthService redirecter = new AuthService(email, password);
 
             try {
                 redirecter.getUrl();
@@ -70,14 +72,22 @@ public class AccountController extends HttpServlet {
                 throw new RuntimeException(e);
             }
 
-            Cookie accessToken = new Cookie("token", redirecter.getAccessToken().trim());
-            Cookie role = new Cookie("role", redirecter.getRole().trim());
-            accessToken.setPath("/");
-            accessToken.setMaxAge(20);
-            role.setPath("/");
-            role.setMaxAge(20);
-            response.addCookie(accessToken);
-            response.addCookie(role);
+            Cookie cookieAccessToken = new Cookie("token", redirecter.getAccessToken().trim());
+            Cookie cookieRole = new Cookie("role", redirecter.getRole().trim());
+            Cookie cookieClientID = new Cookie("clientID", Integer.toString(clientID));
+
+            cookieAccessToken.setPath("/");
+            cookieAccessToken.setMaxAge(20);
+
+            cookieRole.setPath("/");
+            cookieRole.setMaxAge(18000);
+
+            cookieClientID.setPath("/");
+            cookieClientID.setMaxAge(18000);
+
+            response.addCookie(cookieAccessToken);
+            response.addCookie(cookieRole);
+            response.addCookie(cookieClientID);
 
             try {
                 response.sendRedirect(redirecter.getUrl());

@@ -2,17 +2,16 @@ package security;
 
 import dao.Role;
 import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import security.token.AccessToken;
 import security.token.RefreshToken;
-import security.token.Token;
 
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Objects;
 
 public class AuthService {
     private final String email;
@@ -48,64 +47,65 @@ public class AuthService {
     }
 
 
-    public boolean authorization(HttpServletResponse response, String token, String role) throws ParseException, JOSEException {
-        AccessToken accessToken = new AccessToken();
-        if (!accessToken.createAccessToken(response)) {
+    public static boolean authorization(HttpServletRequest request, HttpServletResponse response, int clientID, String role) throws ParseException, JOSEException {
+        AccessToken accessToken = new AccessToken(request);
+        if (!accessToken.createAccessToken(response, clientID, role)) {
             return false;
         }
 
-        String decodedEmail = accessToken.decodeToken(token).email();
-        String decodedPassword = accessToken.decodeToken(token).password();
-        String decodedRole = accessToken.decodeToken(token).role();
+        accessToken.createAccessToken(response, clientID, role);
 
-        if (!Objects.equals(role, decodedRole)) {
-            return false;
-        }
+        String decodedEmail = accessToken.decodeToken(accessToken.getAccessToken(), accessToken.getSecretKey()).email();
+        String decodedPassword = accessToken.decodeToken(accessToken.getAccessToken(), accessToken.getSecretKey()).password();
 
-        if (role.equals("user")) { role = "Students"; }
-        else if (role.equals("admin")) { role = "Lecturers"; }
-
-        try (java.sql.Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
-             PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM " + role + " WHERE email = ? AND password = ?")) {
-            preparedStatement.setString(1, decodedEmail);
-            preparedStatement.setString(2, decodedPassword);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return true;
+        if (role.equals("user")) {
+            try (java.sql.Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+                 PreparedStatement preparedStatement = connection.prepareStatement(
+                         "SELECT * FROM Students WHERE email = ? AND `password` = ?")) {
+                preparedStatement.setString(1, decodedEmail);
+                preparedStatement.setString(2, decodedPassword);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return true;
+                    }
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } else {
+            try (java.sql.Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+                 PreparedStatement preparedStatement = connection.prepareStatement(
+                         "SELECT * FROM Lecturers WHERE email = ? AND `password` = ?")) {
+                preparedStatement.setString(1, decodedEmail);
+                preparedStatement.setString(2, decodedPassword);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return true;
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
         return false;
     }
 
 
-    public boolean authentication(HttpServletResponse response, String token) throws ParseException, JOSEException {
+    public static int getDekanatID(String token) throws ParseException, JOSEException {
         AccessToken accessToken = new AccessToken();
-        if (!accessToken.createAccessToken(response)) {
-            return false;
-        }
-        return accessToken.decodeToken(token) != null;
-    }
-
-
-    public int getDekanatID(String token) throws ParseException, JOSEException {
-        Token accessToken = new AccessToken();
-        Client client = accessToken.decodeToken(token);
+        Client client = accessToken.decodeToken(token, accessToken.getSecretKey());
         int dekanatID = 0;
         try (java.sql.Connection connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT dekanatID FROM Students WHERE email = ? AND `password` = ?")) {
+                     "SELECT dekanatID FROM Students WHERE email = ? AND password = ?")) {
             preparedStatement.setString(1, client.email());
             preparedStatement.setString(2, client.password());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     dekanatID = resultSet.getInt("dekanatID");
                 }
             }

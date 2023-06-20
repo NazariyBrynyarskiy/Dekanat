@@ -18,6 +18,9 @@ import java.util.Date;
 public abstract class Token {
 
     public boolean isValidToken(String token, String secretKey) {
+        if (token == null) {
+            return false;
+        }
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWSVerifier verifier = new MACVerifier(secretKey.getBytes());
@@ -55,11 +58,67 @@ public abstract class Token {
         return null;
     }
 
+    public static int getClientID(String email) {
+        if (getClientRole(email).equals("user")) {
+            try (java.sql.Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+                 PreparedStatement preparedStatement = connection.prepareStatement(
+                         "SELECT dekanatID FROM Students WHERE email = ?")) {
+                preparedStatement.setString(1, email);
 
-    public Client decodeToken(String token) throws ParseException, JOSEException {
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getInt("dekanatID");
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try (java.sql.Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+                 PreparedStatement preparedStatement = connection.prepareStatement(
+                         "SELECT idLecturer FROM Lecturers WHERE email = ?")) {
+                preparedStatement.setString(1, email);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getInt("idLecturer");
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return 0;
+    }
+
+
+    public static String getClientRole(String email) {
+        try (java.sql.Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT email FROM Lecturers WHERE email = ?")) {
+            preparedStatement.setString(1, email);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return "admin";
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return "user";
+    }
+
+
+    public Client decodeToken(String token, String key) throws ParseException, JOSEException {
+        if (token == null) {
+            return new Client("", "", "");
+        }
         SignedJWT signedJWT = SignedJWT.parse(token);
-        AccessToken accessToken = new AccessToken();
-        JWSVerifier verifier = new MACVerifier(accessToken.getSecretKey().getBytes());
+        JWSVerifier verifier = new MACVerifier(key.getBytes());
         String decodedEmail = null;
         String decodedPassword = null;
         String clientRole = null;

@@ -1,4 +1,4 @@
-package studentdb.dbaccess;
+package studentdb.dbaccess.interfaces;
 
 abstract public class Connection {
     private final String CONNECTION;

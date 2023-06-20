@@ -1,6 +1,7 @@
 package lecturerdb.dbaccess;
 
 import lecturerdb.dbenteties.GradeEntity;
+import lecturerdb.dbenteties.StudentEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -30,22 +31,22 @@ public class GradesDBAccess extends Connection {
         int grade;
         int dekanatID;
 
-        java.sql.Connection connection = DriverManager.getConnection(getCONNECTION(), "newuser", "password");
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM Grades");
+        try (java.sql.Connection connection = DriverManager.getConnection(
+                getCONNECTION(), "newuser", "password");
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM Grades")) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    subjectName = resultSet.getString("subjectName");
+                    dekanatID = resultSet.getInt("dekanatID");
+                    grade = resultSet.getInt("grade");
 
-
-        while (resultSet.next()) {
-            subjectName = resultSet.getString("subjectName");
-            dekanatID = resultSet.getInt("dekanatID");
-            grade = resultSet.getInt("grade");
-
-            list.add(new GradeEntity(subjectName, dekanatID, grade));
+                    list.add(new GradeEntity(subjectName, dekanatID, grade));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        connection.close();
-        statement.close();
-        resultSet.close();
 
         return list;
     }

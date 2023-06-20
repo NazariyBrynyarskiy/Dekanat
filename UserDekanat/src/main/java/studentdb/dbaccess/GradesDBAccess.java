@@ -2,6 +2,7 @@ package studentdb.dbaccess;
 
 import com.nimbusds.jose.JOSEException;
 import security.AuthService;
+import studentdb.dbaccess.interfaces.SelectFromDB;
 import studentdb.dbentities.GradeEntity;
 
 import java.sql.*;
@@ -9,12 +10,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GradesDBAccess extends Connection {
+public class GradesDBAccess extends studentdb.dbaccess.interfaces.Connection implements SelectFromDB<List<GradeEntity>> {
 
+    @Override
     public List<GradeEntity> select(String token) throws ParseException, JOSEException {
         List<GradeEntity> list = new ArrayList<>();
-        AuthService authService = new AuthService("", "");
-        int dekanatID = authService.getDekanatID(token);
+        int dekanatID = AuthService.getDekanatID(token);
 
         String subjectName;
         int grade;

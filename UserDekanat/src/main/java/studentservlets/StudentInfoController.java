@@ -3,15 +3,15 @@ package studentservlets;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import studentdb.dbaccess.GradesDBAccess;
+import studentdb.dbaccess.FacultyDBAccess;
 import studentdb.dbaccess.interfaces.SelectFromDB;
-import studentdb.dbentities.GradeEntity;
 
 import java.text.ParseException;
-import java.util.List;
 
-public class GradesController extends HttpServlet {
-    public GradesController() {
+
+public class StudentInfoController extends HttpServlet {
+
+    public StudentInfoController() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -19,11 +19,15 @@ public class GradesController extends HttpServlet {
         }
     }
 
-    public List<GradeEntity> getGrades(HttpServletRequest request) throws ParseException, JOSEException {
+    public String getFaculty(HttpServletRequest request) {
         CookiesController controller = new CookiesController();
-        SelectFromDB<List<GradeEntity>> gradesDBAccess = new GradesDBAccess();
+        SelectFromDB<String> facultyDBAccess = new FacultyDBAccess();
         if (controller.getToken(request) != null) {
-            return gradesDBAccess.select(controller.getToken(request));
+            try {
+                return facultyDBAccess.select(controller.getToken(request));
+            } catch (ParseException | JOSEException e) {
+                throw new RuntimeException(e);
+            }
         }
         return null;
     }

@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import dao.Role;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.sql.SQLException;
@@ -21,7 +22,18 @@ public class AccessToken extends Token {
 
 
     public AccessToken() {
-        accessToken = null;
+        secretKey = initializeKey("Access");
+    }
+
+    public AccessToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("token")) {
+                    accessToken = cookie.getValue();
+                }
+            }
+        }
         secretKey = initializeKey("Access");
     }
 
@@ -51,25 +63,30 @@ public class AccessToken extends Token {
     }
 
 
-    public boolean createAccessToken(HttpServletResponse response) throws ParseException, JOSEException {
-        AccessToken accessToken = new AccessToken();
-        Token decodeAccessToken = new AccessToken();
-        if (accessToken.getAccessToken() != null &&
-                !accessToken.isValidToken(accessToken.getAccessToken(), accessToken.getSecretKey())) {
-            RefreshToken refreshToken = new RefreshToken();
+    public boolean createAccessToken(HttpServletResponse response, int clientID, String role) throws ParseException, JOSEException {
+        if (accessToken == null) {
+            RefreshToken refreshToken = new RefreshToken(clientID, role);
             if (refreshToken.isValidToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey())) {
-                String email = decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).email();
-                String password = decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).password();
-                String role = decodeAccessToken.decodeToken(refreshToken.getRefreshToken()).role();
-                accessToken.createAccessToken(email, password, role);
+                String email = decodeToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey()).email();
+                String password = decodeToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey()).password();
+                createAccessToken(email, password, role);
+
                 Cookie cookieAccessToken = new Cookie("token", getAccessToken());
                 Cookie cookieRole = new Cookie("role", role);
+                Cookie cookieClientID = new Cookie("clientID", Integer.toString(clientID));
+
                 cookieAccessToken.setPath("/");
                 cookieAccessToken.setMaxAge(120);
+
                 cookieRole.setPath("/");
-                cookieRole.setMaxAge(120);
+                cookieRole.setMaxAge(18000);
+
+                cookieClientID.setPath("/");
+                cookieClientID.setMaxAge(18000);
+
                 response.addCookie(cookieAccessToken);
                 response.addCookie(cookieRole);
+                response.addCookie(cookieClientID);
             } else {
                 return false;
             }

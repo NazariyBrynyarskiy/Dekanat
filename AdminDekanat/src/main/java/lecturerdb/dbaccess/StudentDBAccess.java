@@ -45,18 +45,21 @@ public class StudentDBAccess extends Connection {
     }
 
     public int getStudentID(int dekanatID) throws SQLException {
-        java.sql.Connection connection = DriverManager.getConnection(getCONNECTION(), "newuser", "password");
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT dekanatID FROM Students WHERE dekanatID = " + dekanatID);
-
         int studentID = 0;
-        if (resultSet.next()) {
-            studentID = Integer.parseInt(resultSet.getString("dekanatID"));
-        }
+        try (java.sql.Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT dekanatID FROM Students WHERE dekanatID = ?")) {
+            preparedStatement.setInt(1, dekanatID);
 
-        connection.close();
-        statement.close();
-        resultSet.close();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    studentID = resultSet.getInt("dekanatID");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         return studentID;
     }

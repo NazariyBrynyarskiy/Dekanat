@@ -20,7 +20,8 @@
 <%
     try {
         AccountController accountController = new AccountController();
-        accountController.doFilter(request, response, "admin");
+        accountController.doFilter(request, response);
+        accountController.doFilter(request, response);
     } catch (IOException | JOSEException | ParseException | ServletException e) {
         throw new RuntimeException(e);
     }

@@ -4,6 +4,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.Cookie;
 import security.AuthService;
 
 import java.sql.*;
@@ -18,8 +19,33 @@ public class RefreshToken extends Token {
 
 
     public RefreshToken() {
-        refreshToken = null;
         secretKey = initializeKey("Refresh");
+    }
+
+    public RefreshToken(int clientID, String role) {
+        refreshToken = initializeToken(clientID, role);
+        secretKey = initializeKey("Refresh");
+    }
+
+
+    private String initializeToken(int clientID, String role) {
+        try (java.sql.Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/Tokens", "newuser", "password");
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT `refreshToken` FROM RefreshTokens WHERE clientID = ? AND role = ?")) {
+            preparedStatement.setInt(1, clientID);
+            preparedStatement.setString(2, role);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("refreshToken");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
 
@@ -63,61 +89,6 @@ public class RefreshToken extends Token {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-    private int getClientID(String email) {
-        if (getClientRole(email).equals("user")) {
-            try (java.sql.Connection connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
-                 PreparedStatement preparedStatement = connection.prepareStatement(
-                         "SELECT dekanatID FROM Students WHERE email = ?")) {
-                preparedStatement.setString(1, email);
-
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        return resultSet.getInt("dekanatID");
-                    }
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            try (java.sql.Connection connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
-                 PreparedStatement preparedStatement = connection.prepareStatement(
-                         "SELECT idLecturer FROM Lecturers WHERE email = ?")) {
-                preparedStatement.setString(1, email);
-
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        return resultSet.getInt("idLecturer");
-                    }
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return 0;
-    }
-
-
-    private String getClientRole(String email) {
-        try (java.sql.Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
-             PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT email FROM Lecturers WHERE email = ?")) {
-            preparedStatement.setString(1, email);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return "admin";
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return "user";
     }
 
 
@@ -174,8 +145,18 @@ public class RefreshToken extends Token {
 //    }
 
     public static void main(String[] args) throws ParseException, JOSEException {
-        Token token = new AccessToken();
-        System.out.println(token.decodeToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIUzI1NiIsInBhc3N3b3JkIjoiMTIzIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNjg3MTY2Nzc2LCJlbWFpbCI6Im9sa2FAZ21haWwuY29tIn0.5MbRTT1FmKG8gt-CWzFgLW6ZAWM2koMAEgjxGmfFxDQ"));
+        String t = null;
+        if (t == null) {
+            RefreshToken refreshToken = new RefreshToken(1, "user");
+            if (refreshToken.isValidToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey())) {
+                String email = refreshToken.decodeToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey()).email();
+                String password = refreshToken.decodeToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey()).password();
+                String role = refreshToken.decodeToken(refreshToken.getRefreshToken(), refreshToken.getSecretKey()).role();
+                System.out.println(email + ", " + password + ", " + role);
+            } else {
+                System.out.println("zalupa");
+            }
+        }
     }
 
 }
