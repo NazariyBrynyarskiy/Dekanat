@@ -36,8 +36,8 @@ main h1 {
 }
 
 main h3 {
+    border-bottom: 1px gray;
     margin-top: 4%;
-    margin-top: 5%;
     margin-left: 2%;
     color: gray;
 }

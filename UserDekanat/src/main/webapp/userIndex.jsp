@@ -5,6 +5,7 @@
 <%@ page import="studentdb.dbaccess.FacultyDBAccess" %>
 <%@ page import="studentdb.dbaccess.interfaces.SelectFromDB" %>
 <%@ page import="studentservlets.StudentInfoController" %>
+<%@ page import="studentservlets.CookiesController" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -18,7 +19,6 @@
     try {
         AccountController accountController = new AccountController();
         accountController.doFilter(request, response);
-        accountController.doFilter(request, response);
     } catch (IOException | JOSEException | ParseException | ServletException e) {
         throw new RuntimeException(e);
     }
@@ -26,17 +26,21 @@
 %>
 <div class="container">
     <header>
+        <span><a href="index">
+            <%= studentInfoController.getInfo(request).get("Surname") %>
+            <%= studentInfoController.getInfo(request).get("Name") %></a>
+        </span>
         <span><a href="grades">Оцінки</a></span>
         <span><a href="http://localhost:8080" onclick="logout()">Вийти</a></span>
     </header>
 
     <main>
         <h1>Загальна інформація</h1>
-        <h3>Університет: <%= " ЛНУ" %></h3>
-        <h3>Факультет: <%= studentInfoController.getFaculty(request) %></h3>
-        <h3>Спеціальність</h3>
-        <h3>Група</h3>
-        <h3>Форма навчання</h3>
+        <h3>Університет: <%= " LNU" %></h3>
+        <h3>Факультет: <%= studentInfoController.getInfo(request).get("Faculty") %></h3>
+        <h3>Спеціальність: <%= studentInfoController.getInfo(request).get("Speciality") %></h3>
+        <h3>Група: <%= studentInfoController.getInfo(request).get("Group") %></h3>
+        <h3>Форма навчання: <%= studentInfoController.getInfo(request).get("FormOfEducation") %></h3>
     </main>
 </div>
 
