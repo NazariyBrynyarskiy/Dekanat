@@ -1,14 +1,16 @@
-<%@ page import="java.io.IOException" %>
-<%@ page import="java.text.ParseException" %>
-<%@ page import="com.nimbusds.jose.JOSEException" %>
+<%@ page import="lecturerdb.dbenteties.StudentEntity" %>
+<%@ page import="java.sql.SQLException" %>
 <%@ page import="servlets.AccountController" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="com.nimbusds.jose.JOSEException" %>
+<%@ page import="lecturerservlets.StudentManager" %>
+<%@ page import="java.text.ParseException" %>
 <%@ page import="lecturerservlets.LecturerInfoController" %>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main-style.css">
-    <title>Lecturer</title>
+    <title>Title</title>
 </head>
 <body>
 <%
@@ -32,14 +34,30 @@
     </header>
 
     <main>
-        <h1>Загальна інформація</h1>
-        <h3>Університет: <%= " LNU" %></h3>
-        <h3>Факультет: <%= lecturerInfoController.getInfo(request).get("Faculty") %></h3>
+        <%
+            StudentManager studentManager = null;
+            try {
+                studentManager = new StudentManager();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        %>
+        <hr>
+        <h1><%= "List of students:" %></h1>
+        <%
+            for (StudentEntity studentEntity : studentManager.getStudentEntities(request)) {
+        %>
+        <p><h3><%= studentEntity %></h3>
+        <br>
+        <%
+            }
+        %>
     </main>
 </div>
 
 <footer>
     <h4>Пет проект</h4>
 </footer>
+
 </body>
 </html>

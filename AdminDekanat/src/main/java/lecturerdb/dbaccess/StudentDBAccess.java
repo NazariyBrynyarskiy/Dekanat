@@ -1,17 +1,18 @@
 package lecturerdb.dbaccess;
 
+import com.nimbusds.jose.JOSEException;
+import lecturerdb.dbaccess.interfaces.SelectFromDB;
 import lecturerdb.dbenteties.StudentEntity;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentDBAccess extends Connection {
-    public StudentDBAccess() {
+public class StudentDBAccess extends lecturerdb.dbaccess.interfaces.Connection implements SelectFromDB<List<StudentEntity>> {
 
-    }
-
-    public List<StudentEntity> select() throws SQLException {
+    @Override
+    public List<StudentEntity> select(String token) throws SQLException {
         List<StudentEntity> list = new ArrayList<>();
 
         int dekanatID;
@@ -24,7 +25,17 @@ public class StudentDBAccess extends Connection {
         try (java.sql.Connection connection = DriverManager.getConnection(
                 getCONNECTION(), "newuser", "password");
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM Students")) {
+                     "SELECT *" +
+                             " FROM Students" +
+                             " JOIN `Groups` ON Students.groupName = `Groups`.groupName" +
+                             " JOIN Specialities ON `Groups`.idSpeciality = Specialities.idSpeciality" +
+                             " JOIN Faculties ON Specialities.idFaculty = Faculties.idFaculty" +
+                             " WHERE Faculties.facultyName = ?")) {
+            try {
+                preparedStatement.setString(1, getLecturerFaculty(token));
+            } catch (ParseException | JOSEException e) {
+                throw new RuntimeException(e);
+            }
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     dekanatID = resultSet.getInt("dekanatID");
@@ -44,10 +55,36 @@ public class StudentDBAccess extends Connection {
         return list;
     }
 
-    public int getStudentID(int dekanatID) throws SQLException {
+    public String getStudentFaculty(int dekanatID) {
+        String faculty = null;
+
+        try (java.sql.Connection connection = DriverManager.getConnection(
+                getCONNECTION(), "newuser", "password");
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT facultyName FROM Students" +
+                             " JOIN" +
+                             " `Groups` ON Students.groupName = `Groups`.groupName" +
+                             " JOIN" +
+                             "  Specialities ON `Groups`.idSpeciality = Specialities.idSpeciality" +
+                             " JOIN" +
+                             "  Faculties ON Specialities.idFaculty = Faculties.idFaculty WHERE dekanatID = ?")) {
+            preparedStatement.setInt(1, dekanatID);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    faculty = resultSet.getString("facultyName");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return faculty;
+    }
+
+    public int checkStudentExisting(int dekanatID) {
         int studentID = 0;
         try (java.sql.Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/Dekan", "newuser", "password");
+                getCONNECTION(), "newuser", "password");
              PreparedStatement preparedStatement = connection.prepareStatement(
                      "SELECT dekanatID FROM Students WHERE dekanatID = ?")) {
             preparedStatement.setInt(1, dekanatID);

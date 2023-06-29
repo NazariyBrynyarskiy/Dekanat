@@ -11,4 +11,22 @@
         <servlet-name>Index</servlet-name>
         <url-pattern>/index</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminGrades</servlet-name>
+        <jsp-file>/admin-grades.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminGrades</servlet-name>
+        <url-pattern>/grades</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StudentsList</servlet-name>
+        <jsp-file>/list-of-students.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StudentsList</servlet-name>
+        <url-pattern>/students</url-pattern>
+    </servlet-mapping>
 </web-app>

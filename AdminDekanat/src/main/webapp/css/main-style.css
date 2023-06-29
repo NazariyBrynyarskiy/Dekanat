@@ -1,0 +1,51 @@
+html {
+    background-color: rgb(227, 226, 226);
+}
+
+a {
+    color: gray;
+    font-size: 1.5em;
+}
+
+span {
+    margin-right: 10px;
+}
+
+.container {
+    margin-bottom: 15%;
+}
+
+header {
+    background-color: black;
+    padding-bottom: 3%;
+    color: gray;
+}
+
+main {
+    background-color: white;
+    margin-top: 1%;
+    padding-bottom: 1%;
+    padding-top: 1%;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+main h1 {
+    text-align: center;
+}
+
+main h3 {
+    border-bottom: 1px gray;
+    margin-top: 4%;
+    margin-left: 2%;
+    color: gray;
+}
+
+
+footer {
+    background-color: white;
+    padding-bottom: 1%;
+    color: gray;
+    text-align: center;
+}

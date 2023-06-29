@@ -2,15 +2,11 @@
 <%@ page import="servlets.AccountController" %>
 <%@ page import="com.nimbusds.jose.JOSEException" %>
 <%@ page import="java.text.ParseException" %>
-<%@ page import="studentdb.dbaccess.FacultyDBAccess" %>
-<%@ page import="studentdb.dbaccess.interfaces.SelectFromDB" %>
 <%@ page import="studentservlets.StudentInfoController" %>
-<%@ page import="studentservlets.CookiesController" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="${pageContext.request.contextPath}/js/clear-cookies.js"></script>
     <title>Student</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main-style.css">
 </head>
@@ -18,8 +14,8 @@
 <%
     try {
         AccountController accountController = new AccountController();
-        accountController.doFilter(request, response);
-    } catch (IOException | JOSEException | ParseException | ServletException e) {
+        accountController.doFilter(request, response, "user");
+    } catch (IOException | JOSEException | ParseException e) {
         throw new RuntimeException(e);
     }
     StudentInfoController studentInfoController = new StudentInfoController();
@@ -31,7 +27,7 @@
             <%= studentInfoController.getInfo(request).get("Name") %></a>
         </span>
         <span><a href="grades">Оцінки</a></span>
-        <span><a href="http://localhost:8080" onclick="logout()">Вийти</a></span>
+        <span><a href="http://localhost:8080">Вийти</a></span>
     </header>
 
     <main>
