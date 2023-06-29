@@ -4,7 +4,6 @@ import com.nimbusds.jose.JOSEException;
 import lecturerdb.dbaccess.LecturerDBAccess;
 import lecturerdb.dbaccess.StudentDBAccess;
 import lecturerdb.dbaccess.interfaces.Connection;
-import lecturerservlets.checker.CheckOneAttribute;
 import lecturerservlets.checker.CheckTwoAttributes;
 
 import java.text.ParseException;
