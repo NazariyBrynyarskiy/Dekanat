@@ -1,0 +1,21 @@
+html {
+    background-color: rgb(227, 226, 226);
+}
+
+.localizations {
+    float: right;
+}
+
+.container {
+    margin-top: 10%;
+    padding-top: 5%;
+    padding-bottom: 8%;
+    margin-right: 37%;
+    margin-left: 37%;
+    text-align: center;
+    background: white;
+}
+
+h4 {
+    color: red;
+}

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lecturerdb.dbaccess.GradesDBAccess;
 import lecturerdb.dbenteties.GradeEntity;
+import lecturerdb.dbenteties.StudentEntity;
 import lecturerservlets.checker.CheckOneAttribute;
 import lecturerservlets.checker.CheckTwoAttributes;
 import lecturerservlets.checker.checkings.PositiveGrade;
@@ -16,7 +17,9 @@ import lecturerservlets.checker.checkings.StudentExisting;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @WebServlet(name = "GradesController", value = "/grades-controller")
@@ -32,14 +35,28 @@ public class GradesController extends HttpServlet {
         gradesDBAccess = new GradesDBAccess();
     }
 
-    public List<GradeEntity> getGradeEntities(HttpServletRequest request) {
+    public Map<String, List<GradeEntity>> getGradeEntities(HttpServletRequest request) {
         CookiesController controller = new CookiesController();
+        GradesDBAccess gradesDBAccess = new GradesDBAccess();
 
+        Map<String, List<GradeEntity>> sortedListOfGrades = new HashMap<>();
         try {
-            return gradesDBAccess.select(controller.getToken(request));
+            List<GradeEntity> listOfAllGrades = new ArrayList<>(
+                    gradesDBAccess.select(controller.getToken(request)));
+            for (GradeEntity entity : listOfAllGrades) {
+                if (sortedListOfGrades.containsKey(entity.subjectName())) {
+                    sortedListOfGrades.get(entity.subjectName()).add(entity);
+                } else {
+                    List<GradeEntity> grades = new ArrayList<>();
+                    grades.add(entity);
+                    sortedListOfGrades.put(entity.subjectName(), grades);
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return sortedListOfGrades;
     }
 
     private boolean checker(HttpServletRequest request, int grade, int dekanatID, String subjectName) {

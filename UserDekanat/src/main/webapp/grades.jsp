@@ -6,6 +6,9 @@
 <%@ page import="studentservlets.GradesController" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="securityservlets.LocalizationController" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html>
 <head>
@@ -22,6 +25,9 @@
     }
     StudentInfoController studentInfoController = new StudentInfoController();
     GradesController gradesController = new GradesController();
+    LocalizationController localization = new LocalizationController();
+    ResourceBundle messages = ResourceBundle.getBundle("messages", new Locale(localization.getLanguage(request)));
+
 %>
 <div class="container">
     <header>
@@ -29,12 +35,16 @@
         <%= studentInfoController.getInfo(request).get("Surname") %>
         <%= studentInfoController.getInfo(request).get("Name") %>
     </span>
-        <span><a href="grades">Оцінки</a></span>
-        <span><a href="http://localhost:8080">Вийти</a></span>
+        <span><a href="grades"> <%=messages.getString("gradesLink")%> </a></span>
+        <span><a href="http://localhost:8080"> <%=messages.getString("logoutLink")%> </a></span>
+        <form class="localizations" action="localization" method="post">
+            <span><button type="submit" name="language" value="ua">&#x1F1FA;&#x1F1E6;</button></span>
+            <span><button type="submit" name="language" value="en">&#x1F1FA;&#x1F1F8;</button></span>
+        </form>
     </header>
 
     <main>
-        <h1>My grades</h1>
+        <h1> <%=messages.getString("myGrades")%> </h1>
         <h3>
         <%
             try {
@@ -63,7 +73,7 @@
 
 </div>
 <footer>
-    <h4>Пет проект</h4>
+    <h4> <%=messages.getString("footer")%> </h4>
 </footer>
 </body>
 </html>
